@@ -1,0 +1,75 @@
+#######################################
+# Syntax Coloring Map For Grove - SerialScreen771
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DFRobot_SerialScreen771			KEYWORD1
+DFRobot_Flexible_STC8F			KEYWORD1
+DFRobot_SerialScreen1248			KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+####################################### 
+begin					 KEYWORD2
+setMoveMode				 KEYWORD2
+setDispalyColor			 KEYWORD2
+setBrightness			 KEYWORD2
+setMoveSpeed			 KEYWORD2
+setMessageList			 KEYWORD2
+displayBanner			 KEYWORD2
+displayMessage				 KEYWORD2
+setFullScreenColor		 KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
+eMoveLeft	LITERAL1
+eMoveRight	LITERAL1
+eMoveHold	LITERAL1
+eMoveUp	LITERAL1
+eMoveDown	LITERAL1
+eMoveFlash	LITERAL1
+eMoveMode_t	LITERAL1
+
+eColorRed	LITERAL1
+eColorYellow	LITERAL1
+eColorGreen	LITERAL1
+eColorCyan	LITERAL1
+eColorBlue	LITERAL1
+eColorPurple	LITERAL1
+eColorWhite	LITERAL1
+eColorBlack	LITERAL1
+eColorMode_t	LITERAL1
+
+
+eBrightLevel_1	LITERAL1
+eBrightLevel_2	LITERAL1
+eBrightLevel_3	LITERAL1
+eBrightLevel_4	LITERAL1
+eBrightLevel_5	LITERAL1
+eBrightLevel_6	LITERAL1
+eBrightLevel_7	LITERAL1
+eBrightLevel_8	LITERAL1
+eBrightLevel_t	LITERAL1
+
+
+eSpeedLevel_1	LITERAL1
+eSpeedLevel_2	LITERAL1
+eSpeedLevel_3	LITERAL1
+eSpeedLevel_4	LITERAL1
+eSpeedLevel_5	LITERAL1
+eSpeedLevel_6	LITERAL1
+eSpeedLevel_7	LITERAL1
+eSpeedLevel_8	LITERAL1
+eSpeedLevel_t	LITERAL1
+
+eBanner_1   LITERAL1
+eBanner_2   LITERAL1
+eBanner_3   LITERAL1
+eBanner_4   LITERAL1
+eBanner_5   LITERAL1
+eBanner_6   LITERAL1
+eBanner_7   LITERAL1
+eBanner_8   LITERAL1
