@@ -34,24 +34,23 @@ void setup() {
     delay(5);
     /*Display string "DFRobot"*/
     //显示信息不同超过屏的分辨率，否则只能实现左移、右移等操作，无法实现停止、下移，上移、闪烁等功能
-    screen.displayMessage("12356");
     screen.setMoveSpeed(screen.eSpeedLevel_8);
-    /*Set the move mode to hold*/
-    /*eMoveMode_t: eMoveLeft = left
-                   eMoveRight = right
-                   eMoveHold = hold
-                   eMoveDown = down
-                   eMoveUp = up
-                   eMoveFlash = flash
-    */
-    screen.setMoveMode(screen.eMoveHold);
 }
 
 void loop() {
     /*Switch a mobile display mode every 5s*/
     DFRobot_Flexible_STC8F::eMoveMode_t buf[]= {screen.eMoveLeft,screen.eMoveRight,screen.eMoveHold,screen.eMoveDown,screen.eMoveUp,screen.eMoveFlash};
     for(int i = 0; i < sizeof(buf)/sizeof(DFRobot_Flexible_STC8F::eMoveMode_t); i++){
+        /*Set the move mode to hold*/
+        /*eMoveMode_t: eMoveLeft = left
+                       eMoveRight = right
+                       eMoveHold = hold
+                       eMoveDown = down
+                       eMoveUp = up
+                       eMoveFlash = flash
+        */
         screen.setMoveMode(buf[i]);
+        screen.displayMessage("12356");
         delay(5000);
     }
 }

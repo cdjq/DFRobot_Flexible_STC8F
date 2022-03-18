@@ -15,7 +15,6 @@ DFRobot_SerialScreen1248			KEYWORD1
 ####################################### 
 begin					 KEYWORD2
 setMoveMode				 KEYWORD2
-setDispalyColor			 KEYWORD2
 setBrightness			 KEYWORD2
 setMoveSpeed			 KEYWORD2
 setMessageList			 KEYWORD2

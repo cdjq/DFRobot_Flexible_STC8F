@@ -26,7 +26,7 @@
 5. 8级别显示亮度设置，级别越高亮度越亮；
 6. 8级别移动速度设置，级别越高速度越快；
 7. 6种动态显示设置：左移、右移、静止、上移、下移、闪烁，注意：如果设置的显示字符串无法一次性全屏显示(字符串总体宽度大于屏分辨率宽度)，则动态效果只能为左移或右移，设置为其它动态显示效果无效；
-8. 预先存储8个信息列表，设置显示一个或多个信息列表；
+8. 预先存储A~K等11个信息列表，设置显示一个或多个信息列表；
 
 
 ![产品效果图](./resources/images/DFR0597.png)
@@ -58,15 +58,15 @@
    ```
    或
    ```C++
-   displayMessage("DFRobot");
-   setDispalyColor(eColorRed, eColorWhite);
+   displayMessage("DFRobot",eColorRed, eColorWhite);
    ```
 2. 设置显示亮度：亮度等级1 ~ 亮度等级8，等级越高，亮度越亮；
 3. 设置动态显示的移动速度：速度等级1 ~ 速度等级8，等级越高，移动速度越快；
-4. 预先存储8个信息列表，设置显示一个或多个信息列表；
+4. 预先存储A~K等11个信息列表，设置显示一个或多个信息列表；
 5. 全屏点亮、支持红色、黄色、绿色、青色、蓝色、紫色、白色、黑色等颜色全屏显示
 6. 设置动态显示效果：左移、右移、静止、上移、下移、闪烁
-* 注意： 静止、上移、下移、闪烁等显示效果，只在显示字符不超过屏最大分辨率时有效，超过则无效，将显示为左移或右移效果
+* 注意： 静止、上移、下移、闪烁等显示效果，只在显示字符不超过屏最大分辨率时有效，超过则无效，将显示为左移或右移效果，设置后需调用displayMessage或setMessageList才能生效<br>
+
 
 ## 库安装
 
@@ -105,9 +105,10 @@
    * @retval false 初始化失败
    */
   bool begin();
+
   /**
    * @fn setMoveMode
-   * @brief 设置横幅信息移动模式。
+   * @brief 设置横幅信息移动模式， 此模式设置后，需调用displayMessage或setMessageList才能生效。
    * @param m_  移动方向
    * @n     eMoveLeft        横幅左移动 
    * @n     eMoveRight       横幅右移动 
@@ -119,33 +120,52 @@
    * @retval true  设置成功
    * @retval false 设置失败
    */
-  bool setMoveMode(eMoveMode_t m_);
+  void setMoveMode(eMoveMode_t m_);
+
   /**
-   * @fn setDispalyColor
-   * @brief 设置屏显示的前景和背景色。
-   * @param font  字体信息的显示颜色
-   * @n     eColorRed      红色
-   * @n     eColorYellow   黄色
-   * @n     eColorGreen    绿色
-   * @n     eColorCyan     青色
-   * @n     eColorBlue     蓝色
-   * @n     eColorPurple   紫色
-   * @n     eColorWhite    白色
-   * @n     eColorBlack    黑色
-   * @param shading  字体的底纹
-   * @n     eColorRed      红色
-   * @n     eColorYellow   黄色
-   * @n     eColorGreen    绿色
-   * @n     eColorCyan     青色
-   * @n     eColorBlue     蓝色
-   * @n     eColorPurple   紫色
-   * @n     eColorWhite    白色
-   * @n     eColorBlack    黑色
-   * @return  设置状态
-   * @retval true  设置成功
-   * @retval false 设置失败
+   * @fn displayMessage
+   * @brief 显示字符串信息，可在字符串上插入<C_ _>改变后续信息的颜色，字符串的字体颜色和背景色可以被设置为以下颜色
+   * @n ------------------------------
+   * @n 颜色    | 代表字母
+   * @n 红色    |    R 
+   * @n 黄色    |    Y
+   * @n 绿色    |    G
+   * @n 青色    |    C
+   * @n 蓝色    |    B
+   * @n 紫色    |    P
+   * @n 白色    |    W
+   * @n 黑色    |    B
+   * @n 例：displayMessage("<CRW>DFRobot")表示屏显示的是白底红字的DFRobot，等价于displayMessage("DFRobot", eColorRed, eColorWhite)
+   * @n 例：displayMessage("<CWY>DFRobot")表示屏显示的是红底白字的DFRobot, 等价于displayMessage("DFRobot", eColorWhite, eColorRed)
+   * @n 例：displayMessage("DFRobot")表示屏显示的是不指定颜色的DFRobot
+   * @param message_  显示字符串   
    */
-  bool setDispalyColor(eColorMode_t font, eColorMode_t shading);
+  void displayMessage(const char *message_);
+  /**
+   * @fn displayMessage
+   * @brief 设置显示信息的字体的颜色和背景颜色.
+   * @param message_  display information
+   * @param font  font display color
+   * @n     eColorRed      红色
+   * @n     eColorYellow   黄色
+   * @n     eColorGreen    绿色
+   * @n     eColorCyan     青色
+   * @n     eColorBlue     蓝色
+   * @n     eColorPurple   紫色
+   * @n     eColorWhite    白色
+   * @n     eColorBlack    黑色
+   * @param shading  font shading
+   * @n     eColorRed      红色
+   * @n     eColorYellow   黄色
+   * @n     eColorGreen    绿色
+   * @n     eColorCyan     青色
+   * @n     eColorBlue     蓝色
+   * @n     eColorPurple   紫色
+   * @n     eColorWhite    白色
+   * @n     eColorBlack    黑色
+   */
+  void displayMessage(const char *message_, eColorMode_t font , eColorMode_t shading);
+
   /**
    * @fn setBrightness
    * @brief 设置亮度等级，等级越高，亮度越亮。
@@ -201,6 +221,35 @@
    */
   bool setMessageList(uint8_t banN, const char *message_);
   bool setMessageList(eBanner_t banN, const char *message_);
+  
+  /**
+   * @fn setMessageList
+   * @brief 设置信息列表，此屏可存储8个信息列表，用户可以通过此函数修改任意列表中的内容。
+   * @param banN  banN  显示信息列表序号集合
+   * @n eBanner_1 or 1 << 0 设置第1个信息列表中的内容
+   * @n eBanner_2 or 1 << 1 设置第2个信息列表中的内容
+   * @n eBanner_3 or 1 << 2 设置第3个信息列表中的内容
+   * @n eBanner_4 or 1 << 3 设置第4个信息列表中的内容
+   * @n eBanner_5 or 1 << 4 设置第5个信息列表中的内容
+   * @n eBanner_6 or 1 << 5 设置第6个信息列表中的内容
+   * @n eBanner_7 or 1 << 6 设置第7个信息列表中的内容
+   * @n eBanner_8 or 1 << 7 设置第8个信息列表中的内容
+   * @n eBanner_ALL or 0xFF 将所有信息列表设置为同一内容
+   * @n eBanner_1 ~ eBanner_7可以任意组合，表示将这两个信息列表设置为同一内容，例： eBanner_1 | eBanner_8 表示显示第1个和第8个信息列表的内容设置为同一内容。
+   * @param m_  移动方向
+   * @n     eMoveLeft        横幅左移动 
+   * @n     eMoveRight       横幅右移动 
+   * @n     eMoveHold        横幅不移动，静止不动
+   * @n     eMoveUp          横幅上移
+   * @n     eMoveDown        横幅下移
+   * @n     eMoveFlash       横幅闪烁
+   * @return  设置状态
+   * @retval true  设置成功
+   * @retval false 设置失败
+   */
+  bool setMessageList(uint16_t banN, const char *message_, eMoveMode_t m_);
+  bool setMessageList(eBanner_t banN, const char *message_, eMoveMode_t m_);
+
   /**
    * @fn displayBanner
    * @brief 显示信息列表中的横幅信息，此屏存储了8个数据列表信息，用户可以通过此函数按序显示其中一个或多个信息列表
@@ -219,12 +268,7 @@
    */
   void displayBanner(uint8_t banN);
   void displayBanner(eBanner_t banN);
-  /**
-   * @fn displayMessage
-   * @brief 显示字符串信息
-   * @param message_  显示的字符串指针，指向要显示的字符串首地址   
-   */
-  void displayMessage(const char *message_);
+
   /**
    * @fn setFullScreenColor
    * @brief 设置全屏点亮颜色

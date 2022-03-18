@@ -2,6 +2,7 @@
  * @file setScreenColor.ino
  * @brief Full screen lighting, full screen display red, yellow, green, blue, blue, purple, white and other colors.
  * @n Light up the full screen, switch the color every 5s, and cycle
+ * @note 如果将显示亮度调大，需要外部供电，以防止因供电不足，导致显示颜色效果和预期有差异
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @license     The MIT License (MIT)
  * @author [Arya](xue.peng@dfrobot.com)
@@ -38,6 +39,7 @@ void setup() {
                     eColorBlack = black
     */
     screen.setFullScreenColor(screen.eColorBlack);
+    screen.setBrightness(screen.eBrightLevel_1);
 }
 
 void loop() {

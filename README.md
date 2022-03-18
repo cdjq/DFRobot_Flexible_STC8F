@@ -26,6 +26,7 @@
 5. 8级别显示亮度设置，级别越高亮度越亮；
 6. 8级别移动速度设置，级别越高速度越快；
 7. 6种动态显示设置：左移、右移、静止、上移、下移、闪烁，注意：如果设置的显示字符串无法一次性全屏显示(字符串总体宽度大于屏分辨率宽度)，则动态效果只能为左移或右移，设置为其它动态显示效果无效；
+8. 预先存储A~K等11个信息列表，设置显示一个或多个信息列表；
 
 
 ![产品效果图](./resources/images/DFR0597.png)
@@ -53,15 +54,14 @@
    ```
    或
    ```C++
-   displayMessage("DFRobot");
-   setDispalyColor(eColorRed, eColorWhite);
+   displayMessage("DFRobot",eColorRed, eColorWhite);
    ```
 2. 设置显示亮度：亮度等级1 ~ 亮度等级8，等级越高，亮度越亮；
 3. 设置动态显示的移动速度：速度等级1 ~ 速度等级8，等级越高，移动速度越快；
-4. 预先存储8个信息列表，设置显示一个或多个信息列表；
+4. 预先存储A~K等11个信息列表，设置显示一个或多个信息列表；
 5. 全屏点亮、支持红色、黄色、绿色、青色、蓝色、紫色、白色、黑色等颜色全屏显示
 6. 设置动态显示效果：左移、右移、静止、上移、下移、闪烁
-* 注意： 静止、上移、下移、闪烁等显示效果，只在显示字符不超过屏最大分辨率时有效，超过则无效，将显示为左移或右移效果
+* 注意： 静止、上移、下移、闪烁等显示效果，只在显示字符不超过屏最大分辨率时有效，超过则无效，将显示为左移或右移效果，设置后需调用displayMessage 或 setMessageList才能生效<br>
 
 # Installation
 
@@ -102,7 +102,7 @@ To use this library, first download the library file, paste it into the \Arduino
   bool begin();
   /**
    * @fn setMoveMode
-   * @brief Set banner information move mode.
+   * @brief Set banner information move mode，此模式设置后，需调用displayMessage或setMessageList才能生效。.
    * @param m_  Move direction
    * @n     eMoveLeft        banner move left
    * @n     eMoveRight       banner move right
@@ -114,10 +114,31 @@ To use this library, first download the library file, paste it into the \Arduino
    * @retval true  Setting succeeded
    * @retval false Setting failed
    */
-  bool setMoveMode(eMoveMode_t m_);
+  void setMoveMode(eMoveMode_t m_);
+
   /**
-   * @fn setDispalyColor
-   * @brief Set the foreground and background colors for the screen display.
+   * @fn displayMessage
+   * @brief 显示字符串信息，可在字符串上插入<C_ _>改变后续信息的颜色，字符串的字体颜色和背景色可以被设置为以下颜色
+   * @n ------------------------------
+   * @n 颜色    | 代表字母
+   * @n 红色    |    R 
+   * @n 黄色    |    Y
+   * @n 绿色    |    G
+   * @n 青色    |    C
+   * @n 蓝色    |    B
+   * @n 紫色    |    P
+   * @n 白色    |    W
+   * @n 黑色    |    B
+   * @n 例：displayMessage("<CRW>DFRobot")表示屏显示的是白底红字的DFRobot，等价于displayMessage("DFRobot", eColorRed, eColorWhite)
+   * @n 例：displayMessage("<CWY>DFRobot")表示屏显示的是红底白字的DFRobot, 等价于displayMessage("DFRobot", eColorWhite, eColorRed)
+   * @n 例：displayMessage("DFRobot")表示屏显示的是不指定颜色的DFRobot
+   * @param message_  display information   
+   */
+  void displayMessage(const char *message_);
+  /**
+   * @fn displayMessage
+   * @brief 设置显示信息的字体的颜色和背景颜色.
+   * @param message_  display information
    * @param font  font display color
    * @n     eColorRed      red
    * @n     eColorYellow   yellow
@@ -140,7 +161,8 @@ To use this library, first download the library file, paste it into the \Arduino
    * @retval true  Setting succeeded
    * @retval false Setting failed
    */
-  bool setDispalyColor(eColorMode_t font, eColorMode_t shading);
+  void displayMessage(const char *message_, eColorMode_t font , eColorMode_t shading);
+
   /**
    * @fn setBrightness
    * @brief Set brightness level, higher level for higher brightness.
@@ -153,6 +175,7 @@ To use this library, first download the library file, paste it into the \Arduino
    * @n eBrightLevel_6    brightness level 6
    * @n eBrightLevel_7    brightness level 7
    * @n eBrightLevel_8    brightness level 8
+   * @note 如果将显示亮度调大，需要外部供电，以防止因供电不足，导致显示颜色效果和预期有差异
    * @return  Setting status
    * @retval true  Setting succeeded
    * @retval false Setting failed
@@ -179,7 +202,7 @@ To use this library, first download the library file, paste it into the \Arduino
    * @fn setMessageList
    * @brief Set message list, this screen can store 8 message lists, and users can change the content in any list by the function.
    * @param banN  banN  Display the set of message list serial numbers
-   * @n eBanner_1 or 1 << 0 Set the content of the first message list
+   * @n eBanner_1 or 1 << 0 Set the content of the 1st message list
    * @n eBanner_2 or 1 << 1 Set the content of the 2nd message list
    * @n eBanner_3 or 1 << 2 Set the content of the 3rd message list
    * @n eBanner_4 or 1 << 3 Set the content of the 4th message list
@@ -194,11 +217,40 @@ To use this library, first download the library file, paste it into the \Arduino
    * @retval true  Setting succeeded
    * @retval false Setting failed
    */
-  bool setMessageList(uint8_t banN, const char *message_);
+  bool setMessageList(uint16_t banN, const char *message_);
   bool setMessageList(eBanner_t banN, const char *message_);
+
+  /**
+   * @fn setMessageList
+   * @brief Set message list, this screen can store 8 message lists, and users can change the content in any list by the function.
+   * @param banN  banN  Display the set of message list serial numbers
+   * @n eBanner_1 or 1 << 0 Set the content of the 1st message list
+   * @n eBanner_2 or 1 << 1 Set the content of the 2nd message list
+   * @n eBanner_3 or 1 << 2 Set the content of the 3rd message list
+   * @n eBanner_4 or 1 << 3 Set the content of the 4th message list
+   * @n eBanner_5 or 1 << 4 Set the content of the 5th message list
+   * @n eBanner_6 or 1 << 5 Set the content of the 6th message list
+   * @n eBanner_7 or 1 << 6 Set the content of the 7th message list
+   * @n eBanner_8 or 1 << 7 Set the content of the 8th message list
+   * @n eBanner_ALL or 0xFF Set all the message lists to the same content
+   * @n eBanner_1 ~ eBanner_7 can be combined random, which indicates the combined two message lists are set to the same content, for example: eBanner_1 | eBanner_8 indicates the contents of the 1st and the 8th message lists are set to the same.
+   * @n message_ Message content
+   * @param m_  Move direction
+   * @n     eMoveLeft        banner move left
+   * @n     eMoveRight       banner move right
+   * @n     eMoveHold        banner hold still
+   * @n     eMoveUp          banner move up
+   * @n     eMoveDown        banner move down
+   * @n     eMoveFlash       banner flash
+   * @return  Setting status
+   * @retval true  Setting succeeded
+   * @retval false Setting failed
+   */
+  bool setMessageList(uint16_t banN, const char *message_, eMoveMode_t m_);
+  bool setMessageList(eBanner_t banN, const char *message_, eMoveMode_t m_);
   /**
    * @fn displayBanner
-   * @brief Display the banner information in message lists, this screen stores the information of 8 data lists, users can use this function to display one or more information lists in order.
+   * @brief Display the banner information in message lists, this screen stores the information of 8 data lists, users can use this function to display one or more information lists in order
    * @param banN  banN  Display the set of message list serial numbers
    * @n eBanner_1 or 1 << 0 The banner message of the 1st message list stored in the display
    * @n eBanner_2 or 1 << 1 The banner message of the 2nd message list stored in the display
@@ -212,14 +264,8 @@ To use this library, first download the library file, paste it into the \Arduino
    * @n eBanner_1 ~ eBanner_7 can be combined random, which means to display the selected banner information in order, for example: eBanner_1 | eBanner_8 means to display the 1st and the 8th banner information.
    * @return  None
    */
-  void displayBanner(uint8_t banN);
+  void displayBanner(uint16_t banN);
   void displayBanner(eBanner_t banN);
-  /**
-   * @fn displayMessage
-   * @brief display information
-   * @param message_  display information   
-   */
-  void displayMessage(const char *message_);
   /**
    * @fn setFullScreenColor
    * @brief Full screen lights up to show a certain color

@@ -30,10 +30,6 @@ void setup() {
     screen.begin();
 
     delay(5);
-    /*Display string "DFRobot"*/
-    screen.displayMessage("DFRobot");
-    /*Set the string to display the background and font color, set it to red on the black background*/
-    screen.setDispalyColor(screen.eColorRed, screen.eColorBlack);
 }
 
 void loop() {
@@ -43,7 +39,8 @@ void loop() {
     DFRobot_Flexible_STC8F::eColorMode_t buf[]= {screen.eColorRed, screen.eColorYellow, screen.eColorGreen, screen.eColorCyan, screen.eColorBlue, screen.eColorPurple, screen.eColorWhite};
     for(int i = 0; i < sizeof(buf)/sizeof(DFRobot_Flexible_STC8F::eColorMode_t); i++){
         font = buf[i];
-        screen.setDispalyColor(font, backgroud);
+        /*Set the string to display the background and font color*/
+        screen.displayMessage("DFRobot", font, backgroud);
         delay(5000);
     }
 }

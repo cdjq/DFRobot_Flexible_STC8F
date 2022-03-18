@@ -11,13 +11,15 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <SoftwareSerial.h>
-#include "DFRobot_SerialScreen771.h"
+#include "DFRobot_Flexible_STC8F.h"
 
 #ifdef ARDUINO_AVR_UNO
 SoftwareSerial Serial1(2, 3); //RX, TX
 #endif
 
-DFRobot_SerialScreen771 screen(Serial1);
+
+DFRobot_SerialScreen1248 screen(Serial1);  //12x48  Flexible RGB LED Matrix
+//DFRobot_SerialScreen771 screen(Serial1); // 7x71  Flexible RGB LED Matrix
 
 void setup() {
     /*Initialize communication interface (Serial1) and debug interface (Serial)*/

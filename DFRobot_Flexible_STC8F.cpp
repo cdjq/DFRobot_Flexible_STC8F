@@ -6,7 +6,7 @@
  * @n 2.  12x48 Flexible RGB LED Matrix
  * @n 此库具有以下功能：
  * @n 1. 显示字符；
- * @n 2. 预先存储8个信息列表，设置显示一个或多个信息列表；
+ * @n 2. 预先存储11个信息列表，设置显示一个或多个信息列表；
  * @n 3. 8级别显示亮度设置；
  * @n 4. 可设置字符的前景色和背景色；
  * @n 5. 全屏点亮屏幕，全屏点亮，支持红色、绿色、青色、蓝色、紫色、白色、黑色；
@@ -36,15 +36,11 @@ DFRobot_Flexible_STC8F::DFRobot_Flexible_STC8F(Stream &s_, uint16_t width)
       _moveMode    = eMoveHold;
       _backgroud   = eColorBlack;
       _font        = eColorBlue;
+      _color      = false;
       _brightLevel = eBrightLevel_5;
       _speedLevel  = eSpeedLevel_1;
     
-	  memset(_sendBuf, 0 ,sizeof(_sendBuf));
-      memset(_message, 0, sizeof(_message));
-      for(int i = 0 ; i < BANNER; i++){
-          _M[i] = 0x41 + i;
-      }
-      memcpy(_M, "ABCDEFGHI", BANNER);
+      memcpy(_M, "ABCDEFGHIJK", BANNER);
 }
 
 
@@ -55,44 +51,46 @@ bool DFRobot_Flexible_STC8F::begin(){
     return true;
 }
 
-bool DFRobot_Flexible_STC8F::setMoveMode(eMoveMode_t m_){
-    bool ret = true;
+void DFRobot_Flexible_STC8F::setMoveMode(eMoveMode_t m_){
+
     if((m_ < eMoveLeft) | (m_ == 0x34) | (m_ > eMoveFlash)){
         return false;
     }
     _moveMode = m_;
-    if(strlen(_message) == 0){
-        memcpy(_message, "DFRobot", strlen("DFRobot"));
-        _message[strlen("DFRobot")] = '\0';
-    }
-    DBG(_message);
-    displayMessage(_message);
-    return ret;
 }
 
-bool DFRobot_Flexible_STC8F::setDispalyColor(eColorMode_t font_, eColorMode_t back_){
-    _backgroud = back_;
-    _font = font_;
-    char s1[MESSAGE_SIZE] = {0x3C, 0x43,(char)(_font&0x00FF), (char)(_backgroud&0x00FF), 0x3E};
-    if(strlen(_message) == 0){
-        memset(_message, 0, sizeof(_message));
-        memcpy(_message, "DFRobot", strlen("DFRobot"));
-        _message[strlen("DFRobot")] = '\0';
-    }
-    DBG(_message);
-    if((strlen(s1)+strlen(_message)) > MESSAGE_SIZE){
-        DBG("packed !");
-        return false;
-    }
-    memcpy((s1+strlen(s1)), _message, strlen(_message));
-    pPacketHeader_t header = packed(TYPE_INFROMTION, s1, strlen(s1));
+
+void DFRobot_Flexible_STC8F::displayMessage(const char *message_){
+    if(!message_) return;
+    _color = false;
+    pPacketHeader_t header = packed(TYPE_INFROMTION, message_, strlen(message_));
     if(header == NULL){
         DBG("Memory ERROR!");
-        return false;
+        return;
+    }
+    /*DBG("payload:");
+    for(int i = 0; i< header->length.lenL; i++){
+        DBG(header->payload[i],HEX);
+        DBG(i);
+    }*/
+    sendPacket(header);
+    free(header);
+}
+
+void DFRobot_Flexible_STC8F::displayMessage(const char *message_, eColorMode_t font, eColorMode_t shading){
+    if(!message_) return;
+    _backgroud = shading;
+    _font = font;
+    _color = true;
+
+    pPacketHeader_t header = packed(TYPE_INFROMTION, message_, strlen(message_));
+    if(header == NULL){
+        DBG("Memory ERROR!");
+        return;
     }
     sendPacket(header);
     free(header);
-    return true;
+    _color = false;
 }
 
 bool DFRobot_Flexible_STC8F::setBrightness(eBrightLevel_t b_){
@@ -129,21 +127,19 @@ bool DFRobot_Flexible_STC8F::setMoveSpeed(eSpeedLevel_t s_){
 }
 
 bool DFRobot_Flexible_STC8F::setMessageList(eBanner_t banN, const char *message_){
-    return setMessageList((uint8_t)banN, message_);
+    return setMessageList((uint16_t)banN, message_);
 }
 
-bool DFRobot_Flexible_STC8F::setMessageList(uint8_t banN, const char *message_){
+bool DFRobot_Flexible_STC8F::setMessageList(uint16_t banN, const char *message_){
     if(strlen(message_) > MESSAGE_SIZE ){
        return false;
     }
     if(!banN) return false;
-    memset(_message, 0, sizeof(_message));
-    memcpy(_message, message_ ,strlen(message_));
-    _message[strlen(message_)] = '\0';
+    banN &= 0x7FF;
     for(int i = 0; i < BANNER; i++){
         if(banN & (1 << i)){
             _order = i;
-            pPacketHeader_t header = packed(TYPE_INFROMTION, _message, strlen(_message));
+            pPacketHeader_t header = packed(TYPE_INFROMTION, message_, strlen(message_));
             if(header == NULL){
                 DBG("Memory ERROR!");
                 return false;
@@ -156,10 +152,21 @@ bool DFRobot_Flexible_STC8F::setMessageList(uint8_t banN, const char *message_){
     return true;
 }
 
-void DFRobot_Flexible_STC8F::displayBanner(uint8_t banN){
+bool DFRobot_Flexible_STC8F::setMessageList(uint16_t banN, const char *message_, eMoveMode_t m_){
+   if((m_ < eMoveLeft) | (m_ == 0x34) | (m_ > eMoveFlash)){
+       return false;
+   }
+   _moveMode = m_;
+   return setMessageList(banN, message_);
+}
+bool DFRobot_Flexible_STC8F::setMessageList(eBanner_t banN, const char *message_, eMoveMode_t m_){
+    return setMessageList((uint16_t)banN, message_, m_);
+}
+
+void DFRobot_Flexible_STC8F::displayBanner(uint16_t banN){
     String message = "";
     if(!banN) return;
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < BANNER; i++){
         if(banN & (1 << i)){
             switch(i){
                 case 0:
@@ -186,12 +193,21 @@ void DFRobot_Flexible_STC8F::displayBanner(uint8_t banN){
                 case 7:
                        message += "H";
                        break;
+                case 8:
+                       message += "I";
+                       break;
+                case 9:
+                       message += "J";
+                       break;
+                case 10:
+                       message += "K";
+                       break;
+                
+
             }
         }
     }
     DBG(message);
-    Serial.println(message.c_str());
-    Serial.println( strlen(message.c_str()));
     pPacketHeader_t header = packed(TYPE_LIST, message.c_str(), strlen(message.c_str()));
     if(header == NULL){
         DBG("Memory ERROR!");
@@ -202,32 +218,9 @@ void DFRobot_Flexible_STC8F::displayBanner(uint8_t banN){
     return;
 }
 void DFRobot_Flexible_STC8F::displayBanner(eBanner_t banN){
-    return displayBanner((uint8_t)banN);
+    return displayBanner((uint16_t)banN);
 }
 
-void DFRobot_Flexible_STC8F::displayMessage(const char *message_){
-    if(strlen(message_) > MESSAGE_SIZE){
-       return ;
-    }
-    char mess[250];
-    memcpy(mess, message_, strlen(message_));
-    mess[strlen(message_)] = '\0';
-    memset(_message, 0, sizeof(_message));
-    memcpy(_message, mess, strlen(mess));
-    _message[strlen(mess)] = '\0';
-    pPacketHeader_t header = packed(TYPE_INFROMTION, _message, strlen(_message));
-    if(header == NULL){
-        DBG("Memory ERROR!");
-        return;
-    }
-    DBG("payload:");
-    for(int i = 0; i< header->length.lenL; i++){
-        DBG(header->payload[i],HEX);
-        DBG(i);
-    }
-    sendPacket(header);
-    free(header);
-}
 
 bool DFRobot_Flexible_STC8F::setFullScreenColor(eColorMode_t color_){
     _backgroud = color_;
@@ -264,19 +257,18 @@ bool DFRobot_Flexible_STC8F::setFullScreenColor(eColorMode_t color_){
 }
 
 DFRobot_Flexible_STC8F::pPacketHeader_t DFRobot_Flexible_STC8F::packed(uint8_t type, const char *pay_, uint16_t len){
-    const char *payload = handleData(type, pay_, len);
-    if(payload == NULL){
-        DBG("Memory ERROR!");
+    uint16_t length = len;
+    if(type == TYPE_INFROMTION){
+        len += 4 + length;
+        if(_color) len += 10;
+    }else{
+        len += 1;
+    }
+    pPacketHeader_t header = (pPacketHeader_t)malloc(sizeof(sPacketHeader_t)+len+2);
+    if(header == NULL){
+        DBG("malloc chace failed.");
         return NULL;
     }
-    DBG(payload);
-    DBG(len);
-    DBG(sizeof(sPacketHeader_t));
-    pPacketHeader_t header;
-    if((header = (pPacketHeader_t)malloc(sizeof(sPacketHeader_t)+len+1)) == NULL){
-            DBG("Memory ERROR");
-            return NULL;
-        }
     header->head.head1 = 0x42; //B
     header->head.head2 = 0x54; //T
     header->head.head3 = 0x30; //0
@@ -286,18 +278,55 @@ DFRobot_Flexible_STC8F::pPacketHeader_t DFRobot_Flexible_STC8F::packed(uint8_t t
     header->addr = 0x00; 
     header->length.lenH = (len>>8)&0xFF;
     header->length.lenL = (len)&0x00FF;
-    DBG("payload: ");DBG(payload);
-    memcpy((char *)header->payload, payload, len);
-    DBG("payload: ");DBG((const char *)header->payload);
-    header->payload[len] = getCs(header);
-    header->payload[len+1] = '\0';
-    /*DBG((uint32_t)&(header->head.head1),HEX);
-    DBG((uint32_t)&(header->head.head2), HEX);
-    DBG((uint32_t)&(header->payload),HEX);
-    DBG("cs: ");DBG((uint32_t)&(header->cs),HEX);*/
-    free((char *)payload);
-    return header;
 
+
+    char *dst = (char *)header->payload;
+    char *src = (char *)pay_;
+    memset(dst, 0, len+1);
+    switch(type){
+        case TYPE_INFROMTION:
+                dst[0] = _M[_order];//_M[_order];
+                dst[1] = 0x41;
+                dst[2] = _moveMode;
+                dst[3] = 0x41;
+                if(_color){
+                    dst[5] = '<'; //0x3C
+                    dst[7] = 0x43; 
+                    dst[9] = _font&0x00FF;
+                    dst[11] = _backgroud&0x00FF;
+                    dst[13] = '>';
+                    for(uint16_t j = 0; j < length; j++ ){
+                        dst[14 + 2*j+1] = src[j];
+                    }
+                }else{
+                    for(uint16_t j = 0; j < length; j++ ){
+                        dst[4 + 2*j+1] = src[j];
+                    }
+                }
+                break;
+        case TYPE_BRIGHT:
+                dst[0] = 0x55;
+                //for(uint16_t j = 1; j < len; j++ ){
+                //    dst[j] = src[j-1];
+                //}
+                memcpy(dst+1, src, length);
+                break;;
+        case TYPE_SPEED:
+                dst[0] = 0xAA;
+                memcpy(dst+1, src, length);
+                break;;
+        case TYPE_LIST:
+                dst[0] = 0x30;
+                memcpy(dst+1, src, length);
+                break;
+        default: 
+                free(header);
+                return NULL;
+                break;
+    }
+    dst[len] = getCs(header);
+    dst[len + 1] = '\0';
+    return header;
 }
 
 uint8_t DFRobot_Flexible_STC8F::getCs(pPacketHeader_t header){
@@ -320,21 +349,33 @@ const char * DFRobot_Flexible_STC8F::handleData(uint8_t type, const char *src, u
     }else{
         len += 1;
     }
-    char *dst;
-    if( (dst= (char *)malloc(len+1)) == NULL){
-        DBG("Memory ERROR!");
+
+    pPacketHeader_t header = (pPacketHeader_t)malloc(sizeof(sPacketHeader_t)+len+1);
+    if(header == NULL){
+        DBG("malloc chace failed.");
         return NULL;
     }
-    DBG(len);
-    memset(dst, 0x00, len);
+    header->head.head1 = 0x42; //B
+    header->head.head2 = 0x54; //T
+    header->head.head3 = 0x30; //0
+    header->head.head4 = 0x31; //1
+    header->head.head5 = 0x35; //5
+    header->type = type;
+    header->addr = 0x01; 
+    header->length.lenH = (len>>8)&0xFF;
+    header->length.lenL = (len)&0x00FF;
+
+
+    char *dst = (char *)header->payload;
+    memset(dst, 0, len+1);
     switch(type){
         case TYPE_INFROMTION:
-                dst[i++] = _M[_order];
-                dst[i++] = 0x41;
-                dst[i++] = _moveMode;
-                dst[i++] = 0x41;
+                dst[0]   = 0x4B;//_M[_order];
+                dst[1] = 0x00;
+                dst[2] = _moveMode;
+                dst[3] = 0x00;
                 for(uint16_t j = 0; j < length; j++ ){
-                    dst[2*j+1+i] = src[j];
+                    dst[4 + 2*j+1] = src[j];
                 }
                 break;
         case TYPE_BRIGHT:
@@ -375,9 +416,6 @@ void DFRobot_Flexible_STC8F::sendPacket(pPacketHeader_t header){
     DBG("addr: ");DBG(header->addr,HEX);
     DBG("lenH: ");DBG(header->length.lenH,HEX);
     DBG("lenL: ");DBG(header->length.lenL,HEX);
-    //DBG("payload:");DBG((const char *)header->payload);
-    //delay(10);
-    //Serial1.println("hello");
     DBG("payload:");
     uint16_t n = header->length.lenH<<8|header->length.lenL;
     for(uint16_t i=0;i< n+1;i++){

@@ -1,6 +1,6 @@
 /*!
  * @file displayMessageList.ino
- * @brief Initialize 8 information lists M1->M8 and directly print the list of "DFRobot" in the information list.
+ * @brief Initialize 11 information lists MA->MK and directly print the list of "DFRobot" in the information list.
  * @n Display a list of previously stored values of "DFRobot"
  * @copyright   Copyright (c) 2010 DFRobot Co.Ltd (http://www.dfrobot.com)
  * @license     The MIT License (MIT)
@@ -23,14 +23,17 @@ SoftwareSerial Serial1(2, 3); //RX, TX
 DFRobot_SerialScreen1248 screen(Serial1);  //12x48  Flexible RGB LED Matrix
 //DFRobot_SerialScreen771 screen(Serial1); // 7x71  Flexible RGB LED Matrix
 
-const char* M1 = "DFRobot";       // eBanner_1  display list 1
-const char* M2 = "<CRY>DFRobot";  // eBanner_2  display list 2
-const char* M3 = "Hi!";           // eBanner_3  display list 3
-const char* M4 = "<CRY>Hello!";   // eBanner_4  display list 4
-const char* M5 = "World!";        // eBanner_5  display list 5
-const char* M6 = "66";            // eBanner_6  display list 6
-const char* M7 = "77";            // eBanner_7  display list 7
-const char* M8 = "88";            // eBanner_8  display list 8
+const char* MA = "DFRobot";                       // eBanner_A  Set and display list A: 不指定字体颜色和背景的字符串"DFRobot"
+const char* MB = "<CRY>DFRobot";                  // eBanner_B  Set and display list B: 黄底红字的字符串"DFRobot"
+const char* MC = "Hi!";                           // eBanner_C  Set and display list C: 不指定字体颜色和背景的字符串"Hi!"
+const char* MD = "<CYR>Hello!";                   // eBanner_D  Set and display list D: 红底黄字的字符串"Hello!"
+const char* ME = "World!";                        // eBanner_E  Set and display list E: 不指定字体颜色和背景的字符串"World!"
+const char* MF = "<CRW>H";                        // eBanner_F  Set and display list F:  白底红字H
+const char* MG = "<CRG>h";                        // eBanner_G  Set and display list G:  绿底红字h
+const char* MH = "<CRW>H<CRG>h";                  // eBanner_H  Set and display list H:  白底红字H + 绿底红字h
+const char* MI = "<CGG> <CRW>H<CGG> <CRW>h<CGG> ";// eBanner_I  Set and display list I:  绿色空格 + 白底红字H + 绿色空格 + 白底红字h + 绿色空格
+const char* MJ = "<CWW>     <CRW>Ii<CWW>    .";   // eBanner_J  Set and display list J:  全屏显示白屏红字的"Ii"，格式为：5个空格 + Ii + 4个空格 + 小数点.
+const char* MK = "<CWW>    <CRW>Hh<CWW>    ";     // eBanner_K  Set and display list K:  全屏显示白屏红字的"Hh"，格式为：4个空格 + Hh + 4个空格
 
 
 void setup() {
@@ -40,27 +43,31 @@ void setup() {
     screen.begin();
 
     // Send 8 information lists to the serial screen
-    screen.setMessageList(screen.eBanner_1, M1);
-    screen.setMessageList(screen.eBanner_2, M2);
-    screen.setMessageList(screen.eBanner_3, M3);
-    screen.setMessageList(screen.eBanner_4, M4);
-    screen.setMessageList(screen.eBanner_5, M5);
-    screen.setMessageList(screen.eBanner_6, M6);
-    screen.setMessageList(screen.eBanner_7, M7);
-    screen.setMessageList(screen.eBanner_8, M8);
+    screen.setMessageList(screen.eBanner_A, MA);
+    screen.setMessageList(screen.eBanner_B, MB);
+    screen.setMessageList(screen.eBanner_C, MC);
+    screen.setMessageList(screen.eBanner_D, MD);
+    screen.setMessageList(screen.eBanner_E, ME);
+    screen.setMessageList(screen.eBanner_F, MF);
+    screen.setMessageList(screen.eBanner_G, MG);
+    screen.setMessageList(screen.eBanner_H, MH);
+    screen.setMessageList(screen.eBanner_I, MI);
+    screen.setMessageList(screen.eBanner_J, MJ);
+    screen.setMessageList(screen.eBanner_K, MK);
 
     // Prints a list of "DFRobot" in the message list, and the data of the M0 message list
-    screen.displayBanner(screen.eBanner_1);
-    // Print data of M8 information list
-    //screen.displayBanner(screen.eBanner_8);
-    // Print data for M1 and M8 information lists
-    //screen.displayBanner(screen.eBanner_1 | screen.eBanner_8);
-    // Display all information lists for M0~M8
-    //screen.displayBanner(screen.eBanner_1|screen.eBanner_2|screen.eBanner_3|screen.eBanner_4|screen.eBanner_5|screen.eBanner_6|screen.eBanner_7|screen.eBanner_8);
+    screen.displayBanner(screen.eBanner_A);
+    // Print data of MK information list
+    //screen.displayBanner(screen.eBanner_K);
+    // Print data for MA and MK information lists
+    //screen.displayBanner(screen.eBanner_A | screen.eBanner_K);
+    // Display all information lists for MA~MK
+    //screen.displayBanner(screen.eBanner_A|screen.eBanner_B|screen.eBanner_C|screen.eBanner_D|screen.eBanner_E|screen.eBanner_F|screen.eBanner_G|screen.eBanner_H|screen.eBanner_I|screen.eBanner_J|screen.eBanner_K);
     //or
     //screen.displayBanner(screen.eBanner_ALL);
 }
 
 void loop() {
+
 
 }

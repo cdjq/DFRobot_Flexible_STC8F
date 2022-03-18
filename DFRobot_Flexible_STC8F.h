@@ -6,7 +6,7 @@
  * @n 2.  12x48 Flexible RGB LED Matrix
  * @n 此库具有以下功能：
  * @n 1. 显示字符；
- * @n 2. 预先存储8个信息列表，设置显示一个或多个信息列表；
+ * @n 2. 预先存储11个信息列表，设置显示一个或多个信息列表；
  * @n 3. 8级别显示亮度设置；
  * @n 4. 可设置字符的前景色和背景色；
  * @n 5. 全屏点亮屏幕，全屏点亮，支持红色、绿色、青色、蓝色、紫色、白色、黑色；
@@ -35,11 +35,10 @@
 #define DBG(...)
 #endif
 
-extern Stream *dbg;
 class DFRobot_Flexible_STC8F{
 public:
   #define MESSAGE_SIZE      250    //< data cache size
-  #define BANNER            8      //< The screen can store the information of 8 banners.
+  #define BANNER            11      //< The screen can store the information of 11 banners.
   
   /**
    * @struct sHeader_t, pHeader_t
@@ -129,15 +128,18 @@ public:
   }eSpeedLevel_t;
 
   typedef enum{
-      eBanner_1 = 1 << 0,   /**< Information list (banner) NO. 1 */ 
-      eBanner_2 = 1 << 1,   /**< Information list (banner) NO. 2 */
-      eBanner_3 = 1 << 2,   /**< Information list (banner) NO. 3 */
-      eBanner_4 = 1 << 3,   /**< Information list (banner) NO. 4 */
-      eBanner_5 = 1 << 4,   /**< Information list (banner) NO. 5 */
-      eBanner_6 = 1 << 5,   /**< Information list (banner) NO. 6 */
-      eBanner_7 = 1 << 6,   /**< Information list (banner) NO. 7 */
-      eBanner_8 = 1 << 7,   /**< Information list (banner) NO. 8 */
-      eBanner_ALL = 0xFF    /**< 1~8 all the information list serial numbers */
+      eBanner_A = 1 << 0,   /**< Information list (banner) NO. 1 */ 
+      eBanner_B = 1 << 1,   /**< Information list (banner) NO. 2 */
+      eBanner_C = 1 << 2,   /**< Information list (banner) NO. 3 */
+      eBanner_D = 1 << 3,   /**< Information list (banner) NO. 4 */
+      eBanner_E = 1 << 4,   /**< Information list (banner) NO. 5 */
+      eBanner_F = 1 << 5,   /**< Information list (banner) NO. 6 */
+      eBanner_G = 1 << 6,   /**< Information list (banner) NO. 7 */
+      eBanner_H = 1 << 7,   /**< Information list (banner) NO. 8 */
+      eBanner_I = 1 << 8,   /**< Information list (banner) NO. 8 */
+      eBanner_J = 1 << 9,   /**< Information list (banner) NO. 8 */
+      eBanner_K = 1 << 10,   /**< Information list (banner) NO. 8 */
+      eBanner_ALL = 0x7FF    /**< 1~8 all the information list serial numbers */
   }eBanner_t;
 
   /**
@@ -168,14 +170,32 @@ public:
    * @n     eMoveUp          banner move up
    * @n     eMoveDown        banner move down
    * @n     eMoveFlash       banner flash
-   * @return  Setting status
-   * @retval true  Setting succeeded
-   * @retval false Setting failed
    */
-  bool setMoveMode(eMoveMode_t m_);
+  void setMoveMode(eMoveMode_t m_);
+
   /**
-   * @fn setDispalyColor
-   * @brief Set the foreground and background colors for the screen display.
+   * @fn displayMessage
+   * @brief 显示字符串信息，可在字符串上插入<C_ _>改变后续信息的颜色，字符串的字体颜色和背景色可以被设置为以下颜色
+   * @n ------------------------------
+   * @n 颜色    | 代表字母
+   * @n 红色    |    R 
+   * @n 黄色    |    Y
+   * @n 绿色    |    G
+   * @n 青色    |    C
+   * @n 蓝色    |    B
+   * @n 紫色    |    P
+   * @n 白色    |    W
+   * @n 黑色    |    B
+   * @n 例：displayMessage("<CRW>DFRobot")表示屏显示的是白底红字的DFRobot，等价于displayMessage("DFRobot", eColorRed, eColorWhite)
+   * @n 例：displayMessage("<CWY>DFRobot")表示屏显示的是红底白字的DFRobot, 等价于displayMessage("DFRobot", eColorWhite, eColorRed)
+   * @n 例：displayMessage("DFRobot")表示屏显示的是不指定颜色的DFRobot
+   * @param message_  display information   
+   */
+  void displayMessage(const char *message_);
+  /**
+   * @fn displayMessage
+   * @brief 设置显示信息的字体的颜色和背景颜色.
+   * @param message_  display information
    * @param font  font display color
    * @n     eColorRed      red
    * @n     eColorYellow   yellow
@@ -198,7 +218,8 @@ public:
    * @retval true  Setting succeeded
    * @retval false Setting failed
    */
-  bool setDispalyColor(eColorMode_t font, eColorMode_t shading);
+  void displayMessage(const char *message_, eColorMode_t font , eColorMode_t shading);
+
   /**
    * @fn setBrightness
    * @brief Set brightness level, higher level for higher brightness.
@@ -211,6 +232,7 @@ public:
    * @n eBrightLevel_6    brightness level 6
    * @n eBrightLevel_7    brightness level 7
    * @n eBrightLevel_8    brightness level 8
+   * @note 如果将显示亮度调大，需要外部供电，以防止因供电不足，导致显示颜色效果和预期有差异
    * @return  Setting status
    * @retval true  Setting succeeded
    * @retval false Setting failed
@@ -252,8 +274,37 @@ public:
    * @retval true  Setting succeeded
    * @retval false Setting failed
    */
-  bool setMessageList(uint8_t banN, const char *message_);
+  bool setMessageList(uint16_t banN, const char *message_);
   bool setMessageList(eBanner_t banN, const char *message_);
+
+  /**
+   * @fn setMessageList
+   * @brief Set message list, this screen can store 8 message lists, and users can change the content in any list by the function.
+   * @param banN  banN  Display the set of message list serial numbers
+   * @n eBanner_1 or 1 << 0 Set the content of the 1st message list
+   * @n eBanner_2 or 1 << 1 Set the content of the 2nd message list
+   * @n eBanner_3 or 1 << 2 Set the content of the 3rd message list
+   * @n eBanner_4 or 1 << 3 Set the content of the 4th message list
+   * @n eBanner_5 or 1 << 4 Set the content of the 5th message list
+   * @n eBanner_6 or 1 << 5 Set the content of the 6th message list
+   * @n eBanner_7 or 1 << 6 Set the content of the 7th message list
+   * @n eBanner_8 or 1 << 7 Set the content of the 8th message list
+   * @n eBanner_ALL or 0xFF Set all the message lists to the same content
+   * @n eBanner_1 ~ eBanner_7 can be combined random, which indicates the combined two message lists are set to the same content, for example: eBanner_1 | eBanner_8 indicates the contents of the 1st and the 8th message lists are set to the same.
+   * @n message_ Message content
+   * @param m_  Move direction
+   * @n     eMoveLeft        banner move left
+   * @n     eMoveRight       banner move right
+   * @n     eMoveHold        banner hold still
+   * @n     eMoveUp          banner move up
+   * @n     eMoveDown        banner move down
+   * @n     eMoveFlash       banner flash
+   * @return  Setting status
+   * @retval true  Setting succeeded
+   * @retval false Setting failed
+   */
+  bool setMessageList(uint16_t banN, const char *message_, eMoveMode_t m_);
+  bool setMessageList(eBanner_t banN, const char *message_, eMoveMode_t m_);
   /**
    * @fn displayBanner
    * @brief Display the banner information in message lists, this screen stores the information of 8 data lists, users can use this function to display one or more information lists in order
@@ -270,14 +321,8 @@ public:
    * @n eBanner_1 ~ eBanner_7 can be combined random, which means to display the selected banner information in order, for example: eBanner_1 | eBanner_8 means to display the 1st and the 8th banner information.
    * @return  None
    */
-  void displayBanner(uint8_t banN);
+  void displayBanner(uint16_t banN);
   void displayBanner(eBanner_t banN);
-  /**
-   * @fn displayMessage
-   * @brief display information
-   * @param message_  display information   
-   */
-  void displayMessage(const char *message_);
   /**
    * @fn setFullScreenColor
    * @brief Full screen lights up to show a certain color
@@ -303,14 +348,13 @@ protected:
 private:
     Stream *_s;
     uint16_t _width;
-    uint8_t _sendBuf[MESSAGE_SIZE];
 	uint8_t _order;
     eMoveMode_t _moveMode;
 	eColorMode_t  _backgroud;
 	eColorMode_t  _font;
+    bool _color;
     eBrightLevel_t _brightLevel;
     eSpeedLevel_t _speedLevel;
-    char _message[MESSAGE_SIZE+1];
     char _M[BANNER+1];
 };
 
